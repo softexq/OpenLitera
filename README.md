@@ -3,7 +3,7 @@
 A dark‑mode PDF reader that lets you translate any document **while preserving the original layout**.
 Built as a single HTML file – no installation, no build step.
 
-![Screenshot](screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/softexq/OpenLitera/main/screenshot.png)
 
 ## ✨ Features
 
