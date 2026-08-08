@@ -72,9 +72,13 @@ async function loadFile(file){
 /* One page-1 render per shelf entry, small and cheap: getDocument(url)
    (rather than handing it a pre-fetched ArrayBuffer) lets pdf.js use
    range requests, so this only pulls down as much of each PDF as
-   rendering page 1 actually needs, not the whole file. Mirrors exactly
-   how the sidebar's own page thumbnails already handle dark mode
-   (renderThumb, above) so covers don't look out of place next to them. */
+   rendering page 1 actually needs, not the whole file. Deliberately NOT
+   dark-remapped like the sidebar's page thumbnails (renderThumb, above) —
+   that remap is tuned for black text on a white page and crushes colour
+   out of anything else, which is the opposite of what a cover needs. A
+   cover should look like a real book cover in any reading mode, the same
+   way an actual book on a shelf doesn't change colour because the room
+   the shelf is in happens to be dim. */
 async function renderBookCover(path, coverEl){
   if(!coverEl) return;
   let doc=null;
@@ -87,7 +91,6 @@ async function renderBookCover(path, coverEl){
     const c=document.createElement('canvas');
     c.width=Math.round(svp.width); c.height=Math.round(svp.height);
     await page.render({canvasContext:c.getContext('2d'),viewport:svp}).promise;
-    if(document.body.dataset.mode==='dark') remapDarkCanvas(c);
     coverEl.innerHTML='';
     coverEl.appendChild(c);
   }catch(e){
