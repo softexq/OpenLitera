@@ -81,3 +81,44 @@
     display:flex;align-items:center;justify-content:center;gap:10px;
     color:#9aa1a9;margin-top:26px;font-size:.95rem;
   }
+
+  /* ---------- Dictionary lookup panel — same slide-up pattern as #sheet
+     above, just a second instance so it can open independently of it ---------- */
+  #dictScrim{
+    position:fixed;inset:0;z-index:44;background:rgba(0,0,0,.35);
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  #dictScrim.show{opacity:1;pointer-events:auto}
+  #dictPanel{
+    position:fixed;left:0;right:0;bottom:0;z-index:45;
+    background:var(--sheet);border-radius:22px 22px 0 0;
+    padding:10px 20px calc(20px + env(safe-area-inset-bottom));
+    transform:translateY(105%);transition:transform .32s cubic-bezier(.3,.8,.3,1);
+    max-height:70vh;overflow-y:auto;box-shadow:0 -14px 50px rgba(0,0,0,.5);
+  }
+  #dictPanel.open{transform:translateY(0)}
+  #dictHandle{width:36px;height:4px;border-radius:999px;background:var(--line);margin:0 auto 14px}
+  #dictBody{color:var(--text);font-size:.92rem;line-height:1.6}
+  .dictWord{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px}
+  .dictWord h2{font-size:1.3rem;font-weight:700}
+  .dictPhon{color:var(--text-dim);font-size:.85rem}
+  .dictPlay{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:999px;background:var(--panel-card);
+    color:var(--accent-bright);flex-shrink:0;
+  }
+  .dictPlay svg{width:13px;height:13px}
+  .dictPos{
+    color:var(--accent-bright);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+    margin:16px 0 6px;
+  }
+  .dictDef{margin-bottom:10px}
+  .dictDef .n{color:var(--text-dim);margin-right:4px}
+  .dictEx{color:var(--text-dim);font-style:italic;font-size:.86rem;margin-top:2px}
+  .dictSyn{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .dictSyn span{
+    background:var(--panel-card);border-radius:999px;padding:3px 10px;
+    font-size:.76rem;color:var(--text-dim);
+  }
+  .dictMsg{color:var(--text-dim);text-align:center;padding:24px 0;font-size:.9rem}
+  .dictMsg.pending{font-style:italic}
