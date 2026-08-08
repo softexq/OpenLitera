@@ -8,6 +8,7 @@
 
 /* ---------- SELECT MODE: drag across text to sweep-select (Kindle-style) ---------- */
 const copyPill=$('#copyPill'), quickPop=$('#quickPop'), selectHint=$('#selectHint');
+const dictPanel=$('#dictPanel'), dictScrim=$('#dictScrim'), dictBody=$('#dictBody');
 function caretRange(x,y){
   if(document.caretRangeFromPoint) return document.caretRangeFromPoint(x,y);
   if(document.caretPositionFromPoint){

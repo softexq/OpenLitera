@@ -1,5 +1,5 @@
 /* 05-quick-translate.js — part of OpenLiteraReader.
-   Instant translate-on-selection (paints the translation over the selected word/phrase), plus the shared back-button history guard used by select mode, quick-translate, the settings sheet and the sidebar.
+   Instant translate-on-selection (paints the translation over the selected word/phrase), the free dictionary lookup panel, and the shared back-button history guard used by all of select mode, quick-translate, dictionary mode, the settings sheet and the sidebar.
    Loaded as a plain (non-module) script, in numeric order, from index.html —
    it shares one global scope with every other 0X-*.js file, the same as if
    this were all still one <script> block. Keep that load order when adding
@@ -23,6 +23,7 @@ function setQuickTrans(on){
   document.body.classList.toggle('quicktrans',on);
   $('#quickTransBtn').classList.toggle('active',on);
   if(on){
+    if(dictMode) setDictMode(false);
     showHintOnce('quickTrans','Select a word or phrase to see it translated · tap the button again to exit');
     document.body.classList.remove('hud-hidden');
   } else selectHint.classList.remove('show');
@@ -32,20 +33,133 @@ function setQuickTrans(on){
 }
 $('#quickTransBtn').addEventListener('click',()=>setQuickTrans(!quickTrans));
 
+/* ---------- DICTIONARY: select a word, see its definition ----------
+   Free, no-key, CORS-enabled API (dictionaryapi.dev) — called straight
+   from the browser, no server involved on this app's side. English only,
+   and a lookup of a multi-word selection just uses the first word, since
+   the API itself is a single-word lookup, not a phrase one. Mutually
+   exclusive with quick-translate (both react to a selection, so having
+   both on at once would be ambiguous about which one it's for) —
+   switching either on switches the other off. Results are cached in
+   memory for the session, since a definition doesn't change from one
+   lookup to the next. */
+let dictMode=false, dictTimer=null, dictToken=0, lastDictText='';
+const dictCache=new Map();
+
+function hideDictPanel(){
+  dictToken++;
+  clearTimeout(dictTimer);
+  dictPanel.classList.remove('open');
+  dictScrim.classList.remove('show');
+}
+function setDictMode(on){
+  dictMode=on;
+  document.body.classList.toggle('dictmode',on);
+  $('#dictBtn').classList.toggle('active',on);
+  if(on){
+    if(quickTrans) setQuickTrans(false);
+    showHintOnce('dictMode','Select a word to look it up · tap the button again to exit');
+    document.body.classList.remove('hud-hidden');
+  } else selectHint.classList.remove('show');
+  const s=window.getSelection(); if(s) s.removeAllRanges();
+  lastDictText='';
+  hideDictPanel();
+  syncModeNavGuard();
+}
+$('#dictBtn').addEventListener('click',()=>setDictMode(!dictMode));
+dictScrim.addEventListener('click',hideDictPanel);
+
+function scheduleDictLookup(){
+  if(!dictMode) return;
+  clearTimeout(dictTimer);
+  const s=window.getSelection();
+  if(!s||s.isCollapsed){ lastDictText=''; return; }
+  const node=s.anchorNode, el=node&&(node.nodeType===1?node:node.parentElement);
+  if(!el||!el.closest||!el.closest('.textLayer')) return;   // original text only
+  const text=selText(s);
+  if(!text||text===lastDictText) return;
+  lastDictText=text;
+  dictTimer=setTimeout(()=>runDictLookup(text),300);
+}
+
+async function runDictLookup(text){
+  const token=++dictToken;
+  const word=text.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z'-]/g,'');
+  if(!word) return;
+  dictBody.innerHTML='<div class="dictMsg pending">Looking up \u201c'+escapeHtml(word)+'\u201d\u2026</div>';
+  dictPanel.classList.add('open');
+  dictScrim.classList.add('show');
+
+  if(dictCache.has(word)){
+    renderDictResult(word, dictCache.get(word));
+    return;
+  }
+  try{
+    const res=await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(word));
+    if(token!==dictToken||!dictMode) return;   // superseded by a newer selection, or turned off while waiting
+    if(!res.ok){ dictCache.set(word,null); renderDictResult(word,null); return; }
+    const data=await res.json();
+    dictCache.set(word,data);
+    if(token!==dictToken||!dictMode) return;
+    renderDictResult(word,data);
+  }catch(e){
+    if(token!==dictToken||!dictMode) return;
+    dictBody.innerHTML='<div class="dictMsg">Couldn\u2019t reach the dictionary \u2014 check your connection and try again.</div>';
+  }
+}
+
+function renderDictResult(word,data){
+  if(!data||!data.length){
+    dictBody.innerHTML='<div class="dictMsg">No dictionary entry found for \u201c'+escapeHtml(word)+'\u201d.</div>';
+    return;
+  }
+  const entry=data[0];
+  const phon=entry.phonetic||(entry.phonetics||[]).map(p=>p.text).find(Boolean)||'';
+  const audioRaw=(entry.phonetics||[]).map(p=>p.audio).find(a=>a);
+  const audioUrl=audioRaw?(audioRaw.indexOf('//')===0?'https:'+audioRaw:audioRaw):'';
+
+  let html='<div class="dictWord"><h2>'+escapeHtml(entry.word||word)+'</h2>';
+  if(phon) html+='<span class="dictPhon">'+escapeHtml(phon)+'</span>';
+  if(audioUrl) html+='<button class="dictPlay" type="button" aria-label="Play pronunciation">'+
+    '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20"/></svg></button>';
+  html+='</div>';
+
+  (entry.meanings||[]).forEach(m=>{
+    html+='<div class="dictPos">'+escapeHtml(m.partOfSpeech||'')+'</div>';
+    const defs=m.definitions||[];
+    defs.slice(0,4).forEach((d,i)=>{
+      html+='<div class="dictDef">';
+      if(defs.length>1) html+='<span class="n">'+(i+1)+'.</span>';
+      html+=escapeHtml(d.definition||'');
+      if(d.example) html+='<div class="dictEx">\u201c'+escapeHtml(d.example)+'\u201d</div>';
+      html+='</div>';
+      if(d.synonyms&&d.synonyms.length)
+        html+='<div class="dictSyn">'+d.synonyms.slice(0,8).map(sy=>'<span>'+escapeHtml(sy)+'</span>').join('')+'</div>';
+    });
+  });
+
+  dictBody.innerHTML=html;
+  if(audioUrl){
+    const btn=dictBody.querySelector('.dictPlay');
+    if(btn) btn.addEventListener('click',()=>{ new Audio(audioUrl).play().catch(()=>{}); });
+  }
+}
+
 /* ---------- back button exits an open mode/panel instead of leaving the
    page ----------
-   Entering select mode, quick-translate mode, or opening the settings
-   sheet/sidebar on a phone-width screen pushes one extra history entry.
-   The device/browser back button pops it like any other back-navigation,
-   which fires popstate below — treated as "close whatever's open", not as
-   leaving the reader. Exiting normally (tapping that control again) cleans
-   the same entry back up via history.back(), with suppressNavSync stopping
-   that from bouncing back through the popstate handler and re-pushing it.
-   The sheet/sidebar dock in place (not an overlay) on a wide screen, so
-   they're excluded there — back should behave normally on desktop. */
+   Entering select mode, quick-translate mode, dictionary mode, or opening
+   the settings sheet/sidebar on a phone-width screen pushes one extra
+   history entry. The device/browser back button pops it like any other
+   back-navigation, which fires popstate below — treated as "close
+   whatever's open", not as leaving the reader. Exiting normally (tapping
+   that control again) cleans the same entry back up via history.back(),
+   with suppressNavSync stopping that from bouncing back through the
+   popstate handler and re-pushing it. The sheet/sidebar dock in place
+   (not an overlay) on a wide screen, so they're excluded there — back
+   should behave normally on desktop. */
 let modeNavGuarded=false, suppressNavSync=false;
 function anyModeActive(){
-  return selectMode||quickTrans||
+  return selectMode||quickTrans||dictMode||
     (!isDesk()&&(sheet.classList.contains('open')||sidebar.classList.contains('open')));
 }
 function syncModeNavGuard(){
@@ -62,6 +176,7 @@ window.addEventListener('popstate',()=>{
   modeNavGuarded=false;
   suppressNavSync=true;
   if(quickTrans) setQuickTrans(false);
+  if(dictMode) setDictMode(false);
   if(selectMode) enterSelectMode(false);
   if(sheet.classList.contains('open')) setPanel(false);
   if(sidebar.classList.contains('open')) setRail(false);

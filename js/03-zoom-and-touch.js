@@ -139,7 +139,7 @@ viewer.addEventListener('pointerup',e=>{
        and letting it zoom instead used to race the browser's own
        double-tap word-select and tear down the text layer mid-selection.
        A single tap toggling the HUD doesn't have that conflict. */
-    if(selectMode||quickTrans) return;
+    if(selectMode||quickTrans||dictMode) return;
     const r=viewerRect();
     zoomAbout(e.clientX-r.left, e.clientY-r.top, zoom>1.1 ? (1/zoom) : 2);
     return;
@@ -190,4 +190,5 @@ document.addEventListener('selectionchange',()=>{
   if(selectionActive()){ hadSelection=true; freezeScroll(true); }
   else if(hadSelection){ hadSelection=false; freezeScroll(false); }
   scheduleQuickTranslate();
+  scheduleDictLookup();
 });
