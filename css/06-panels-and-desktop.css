@@ -1,0 +1,110 @@
+/* 06-panels-and-desktop.css — part of OpenLiteraReader.
+   Zoom controls, table-of-contents list, and the desktop (>=900px) layout overrides for the panels above.
+   Loaded as a plain stylesheet, in numeric order, from index.html — kept in
+   the same order as the original single <style> block so the cascade (which
+   rule wins when two have equal specificity) behaves identically. */
+
+  /* ---------- Panel controls ---------- */
+  .mode-row.compact .mode-btn{height:58px}
+  .pair-row{display:flex;gap:12px;margin-bottom:14px}
+  .big-btn{
+    flex:1;height:50px;border:1px solid #454b53;border-radius:6px;background:var(--panel-card);
+    color:#d7dbe0;font-size:1.35rem;display:flex;align-items:center;justify-content:center;
+    transition:background .16s;
+  }
+  .big-btn:active{background:var(--surface-2)}
+  .big-btn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  #zoomRange{
+    -webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:3px;
+    background:#565d66;margin:4px 0 12px;cursor:pointer;
+  }
+  #zoomRange::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:50%;
+    background:var(--accent-bright);border:none;cursor:pointer;
+  }
+  #zoomRange::-moz-range-thumb{
+    width:15px;height:15px;border:none;border-radius:50%;background:var(--accent-bright);cursor:pointer;
+  }
+  .linkbtn{color:var(--accent-bright);font-size:.95rem;padding:3px 0;text-decoration:underline}
+  .linkbtn:hover{color:#5ec8f2}
+
+  /* ---------- Contents list in the page rail ---------- */
+  .tocBox{margin:0 0 18px}
+  .tocHead{color:#9aa1a9;font-size:.62rem;letter-spacing:.2em;margin:2px 0 8px}
+  .tocItem{
+    display:flex;gap:8px;align-items:baseline;width:100%;text-align:left;
+    padding:7px 8px;border-radius:6px;color:#c3cad2;font-size:.76rem;line-height:1.4;
+  }
+  .tocItem:hover{background:var(--surface)}
+  .tocItem span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tocItem i{font-style:normal;color:var(--text-dim);font-size:.68rem;flex-shrink:0}
+
+  /* ---------- Desktop chrome ---------- */
+  #navGroup,#zoomGroup,#docTitle,#fsBtn{display:none}
+
+  @media (min-width:900px){
+    #topbar{height:46px;padding:0 6px}
+    .icon-btn{width:34px;height:34px;border-radius:7px}
+    .icon-btn svg{width:19px;height:19px;stroke-width:1.7}
+    .icon-btn:hover{background:var(--surface)}
+    #navGroup,#zoomGroup{display:flex;align-items:center}
+    #navGroup{margin-left:2px}
+    #zoomGroup{margin-left:12px}
+    #pageInd{
+      font-size:.78rem;color:#dfe3e7;min-width:70px;text-align:center;
+      font-variant-numeric:tabular-nums;
+    }
+    #fsBtn{display:flex}
+    #docTitle{
+      display:block;position:absolute;left:50%;transform:translateX(-50%);
+      max-width:34%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      font-size:.82rem;color:#6ea6c9;pointer-events:none;
+    }
+
+    #viewer{padding-top:84px}
+    #progressWrap{top:46px;height:26px}
+    #pageBadge{top:84px}
+    body.bimode #pageBadge{top:112px}
+    #biBar{top:46px}
+    #biView{padding-top:104px}
+    #zoomCtl{display:none!important}
+    #sidebar{top:46px;width:214px}
+    #scrim{display:none}
+
+    /* the settings sheet docks to the right edge instead of sliding up */
+    #sheet{
+      top:46px;bottom:0;left:auto;right:0;width:270px;max-height:none;
+      border-radius:0;border-left:1px solid #0d0f11;
+      transform:translateX(100%);padding:16px 16px 40px;
+      box-shadow:-10px 0 34px rgba(0,0,0,.32);
+    }
+    #sheetScrim{display:none}
+    body.panel-open #viewer,body.panel-open #biView,
+    body.panel-open #progressWrap,body.panel-open #biBar{right:270px}
+    body.rail-open #viewer,body.rail-open #biView,
+    body.rail-open #progressWrap,body.rail-open #biBar{left:214px}
+
+    /* denser controls, since a mouse does not need 84px targets */
+    .sheet-label{font-size:.66rem;letter-spacing:.19em;margin:20px 0 9px}
+    .mode-btn{height:50px}
+    .mode-btn svg{width:22px;height:22px}
+    .mode-row.compact .mode-btn{height:44px}
+    .notice{font-size:.74rem;padding:11px 13px;line-height:1.55;margin-top:12px}
+    .toggle-row{padding:11px 13px;margin-bottom:7px}
+    .toggle-row span{font-size:.84rem}
+    .switch{width:42px;height:23px}
+    .switch::after{width:19px;height:19px}
+    .switch.on::after{left:20px}
+    .sel-row{padding:9px 12px;margin-bottom:7px}
+    .sel-row label{font-size:.8rem}
+    .sel-row select,.sel-row input{font-size:.76rem;padding:6px 8px}
+    .seg{margin-bottom:8px}
+    .seg button{padding:9px 4px;font-size:.73rem}
+    .big-btn{height:42px;font-size:1.2rem}
+    .pair-row{gap:10px;margin-bottom:12px}
+    .linkbtn{font-size:.82rem}
+    .hint{font-size:.7rem;margin:-2px 2px 12px}
+    .sheet-foot{font-size:.8rem;margin-top:22px}
+    .bi-chip{font-size:.72rem}
+    #biIntro{font-size:.84rem}
+  }

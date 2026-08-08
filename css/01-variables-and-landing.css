@@ -1,0 +1,70 @@
+/* 01-variables-and-landing.css — part of OpenLiteraReader.
+   Theme variables (colours, spacing) and the landing/splash screen shown before a PDF is loaded.
+   Loaded as a plain stylesheet, in numeric order, from index.html — kept in
+   the same order as the original single <style> block so the cascade (which
+   rule wins when two have equal specificity) behaves identically. */
+
+
+  :root{
+    --bg:#131518; --bg-soft:#1b1e22; --surface:#24282e; --surface-2:#2c3138;
+    --line:#33383f; --text:#e8eaed; --text-dim:#8b929b;
+    --accent:#0e5a73; --accent-bright:#35b6e8; --sheet:#33383e; --panel-card:#3a4047;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Comfortaa',system-ui,sans-serif;overflow:hidden;
+  }
+  button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+  /* ---------- Landing ---------- */
+  #landing{
+    position:fixed;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:safe center;gap:22px;
+    padding:32px 32px calc(32px + env(safe-area-inset-bottom));
+    background:radial-gradient(1200px 700px at 50% -10%, #1d2b33 0%, var(--bg) 55%);
+    z-index:50;transition:opacity .35s ease;
+    overflow-y:auto;    /* was fixed/uncroll-able — a book list can now make this taller than one screen */
+  }
+  #landing.hidden{opacity:0;pointer-events:none}
+  .brand{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+  .brand .moon{
+    width:64px;height:64px;border-radius:20px;
+    background:linear-gradient(140deg,#0e5a73,#123845);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 12px 40px rgba(14,90,115,.45);
+  }
+  .brand h1{font-size:1.6rem;font-weight:700;letter-spacing:.02em}
+  .brand p{color:var(--text-dim);font-size:.85rem;max-width:300px;line-height:1.6}
+  #dropzone{
+    width:min(440px,100%);border:2px dashed var(--line);border-radius:16px;
+    padding:26px 22px;display:flex;flex-direction:column;align-items:center;gap:10px;
+    color:var(--text-dim);text-align:center;transition:border-color .2s, background .2s;
+    font-size:.9rem;line-height:1.5;flex-shrink:0;
+  }
+  #dropzone.drag{border-color:var(--accent-bright);background:rgba(53,182,232,.06)}
+  #dropzone svg{width:28px;height:28px}
+  #openBtn{
+    background:var(--accent);color:#fff;padding:12px 28px;border-radius:999px;
+    font-size:.95rem;font-weight:600;box-shadow:0 8px 24px rgba(14,90,115,.4);
+    transition:transform .15s, background .2s;
+  }
+  #openBtn:hover{background:#0f6c8a;transform:translateY(-1px)}
+  #fileInput{display:none}
+
+  /* ---------- Bookshelf: an optional personal library, see books/books.json ---------- */
+  #bookShelf{
+    width:min(440px,100%);display:none;flex-direction:column;gap:10px;flex-shrink:0;
+  }
+  .shelf-label{color:var(--text-dim);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase}
+  #bookList{display:flex;flex-direction:column;gap:8px}
+  .bookItem{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    background:var(--panel-card);border-radius:10px;padding:12px 16px;
+    color:var(--text);font-size:.88rem;transition:background .15s;
+  }
+  .bookItem:active{background:var(--surface-2)}
+  .bookItem svg{flex-shrink:0;color:var(--text-dim)}
+  .bookItem span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

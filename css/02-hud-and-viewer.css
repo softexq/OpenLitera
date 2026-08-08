@@ -1,0 +1,83 @@
+/* 02-hud-and-viewer.css — part of OpenLiteraReader.
+   Top toolbar (HUD) buttons/badges, and the scrollable page viewer + page boxes.
+   Loaded as a plain stylesheet, in numeric order, from index.html — kept in
+   the same order as the original single <style> block so the cascade (which
+   rule wins when two have equal specificity) behaves identically. */
+
+  /* ---------- HUD ---------- */
+  .hud{transition:transform .28s ease, opacity .28s ease}
+  body.hud-hidden #topbar{transform:translateY(-100%)}
+  body.hud-hidden #progressWrap{transform:translateY(-70px);opacity:0}
+  body.hud-hidden #zoomCtl{transform:translateX(80px);opacity:0}
+  body.hud-hidden #pageBadge{opacity:0}
+
+  #topbar{
+    position:fixed;top:0;left:0;right:0;height:60px;z-index:30;
+    background:var(--bg-soft);display:flex;align-items:center;
+    padding:0 6px;border-bottom:1px solid #0d0f11;
+  }
+  #topbar .spacer{flex:1}
+  .icon-btn{
+    width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+    border-radius:12px;color:#c9ced4;transition:background .15s,color .15s;
+  }
+  .icon-btn:active{background:var(--surface)}
+  .icon-btn.active{color:var(--accent-bright);background:var(--surface)}
+  .icon-btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+  #progressWrap{
+    position:fixed;top:60px;left:0;right:0;height:34px;z-index:29;
+    display:flex;align-items:center;pointer-events:none;
+  }
+  #progressTrack{position:relative;flex:1;height:3px;background:#3a4048;pointer-events:auto;cursor:pointer}
+  #progressFill{position:absolute;left:0;top:0;bottom:0;background:var(--accent-bright);width:0%}
+  #progressKnob{
+    position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);
+    width:26px;height:26px;border-radius:50%;
+    border:5px solid var(--accent-bright);background:var(--bg);
+    display:flex;align-items:center;justify-content:center;touch-action:none;
+  }
+  #progressKnob::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-bright)}
+  #pageBadge{
+    position:fixed;top:100px;right:14px;z-index:29;
+    background:rgba(30,34,39,.9);border:1px solid var(--line);
+    padding:6px 14px;border-radius:999px;font-size:.75rem;color:var(--text-dim);
+    backdrop-filter:blur(6px);display:none;transition:opacity .28s;
+  }
+  #pageBadge.show{display:block}
+
+  #zoomCtl{
+    position:fixed;right:12px;bottom:24px;z-index:28;
+    display:none;flex-direction:column;gap:8px;
+  }
+  #zoomCtl button{
+    width:46px;height:46px;border-radius:14px;
+    background:rgba(36,40,46,.92);border:1px solid var(--line);
+    color:#d7dbe0;font-size:1.35rem;display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(6px);
+  }
+  #zoomCtl button:active{background:var(--surface-2)}
+  #zoomPct{
+    font-size:.68rem;color:var(--text-dim);text-align:center;
+    background:rgba(36,40,46,.92);border:1px solid var(--line);
+    border-radius:999px;padding:5px 0;
+  }
+
+  /* ---------- Viewer / pages ---------- */
+  #viewer{
+    position:fixed;inset:0;top:0;overflow:auto;
+    padding:104px 10px 60px;-webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+  }
+  body.pinching #viewer{touch-action:none;overflow:hidden}
+  body.selecting #viewer{touch-action:none}
+  body.selectmode #viewer{touch-action:none;cursor:text}
+  body.selectmode .textLayer span{cursor:text}
+  #selectHint{
+    position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:33;
+    background:rgba(20,23,26,.94);border:1px solid var(--line);color:var(--text-dim);
+    padding:10px 16px;border-radius:14px;font-size:.72rem;line-height:1.5;
+    max-width:min(320px,88vw);text-align:center;
+    display:none;backdrop-filter:blur(6px);
+  }
+  #selectHint.show{display:block}

@@ -1,0 +1,98 @@
+/* 07-overlay-and-themes.css — part of OpenLiteraReader.
+   Full-page translation overlay painted onto the page, the wordmark, and light-mode / reduced-motion theme tweaks.
+   Loaded as a plain stylesheet, in numeric order, from index.html — kept in
+   the same order as the original single <style> block so the cascade (which
+   rule wins when two have equal specificity) behaves identically. */
+
+  /* ---------- Translation painted onto the page ---------- */
+  .transLayer{
+    position:absolute;left:0;top:0;transform-origin:0 0;z-index:4;pointer-events:none;
+  }
+  body[data-mode="dark"] .pageBox .transLayer{filter:none}    /* blocks are painted with the exact dark colours already */
+  body[data-mode="xdark"] .pageBox .transLayer{filter:invert(1) hue-rotate(180deg)}
+  body.pinching .transLayer{pointer-events:none}
+  .tBlock{
+    position:absolute;overflow:hidden;pointer-events:auto;
+    -webkit-user-select:text;user-select:text;
+    hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word;
+    font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    animation:tFade .22s ease both;
+  }
+  @keyframes tFade{from{opacity:0}to{opacity:1}}
+  .tBlock.head{font-weight:700}
+  .tBlock.tFail{
+    color:#c94a3d;font-style:italic;font-size:.86em;
+    outline:1px dashed rgba(201,74,61,.55);outline-offset:-1px;
+    cursor:pointer;-webkit-user-select:none;user-select:none;pointer-events:auto;
+  }
+  .tBlock.tFail:hover{background:rgba(201,74,61,.1)}
+  body[data-bifont="serif"] .tBlock{font-family:Georgia,'Times New Roman',serif}
+  body[data-bifont="round"] .tBlock{font-family:'Comfortaa',system-ui,sans-serif}
+  body.selectmode .tBlock{cursor:text}
+
+  /* the translation bar sits below the progress bar when reading on the page */
+  body.tactive #biBar{display:flex}
+  body.tactive.hud-hidden #biBar{transform:translateY(-140px)}
+  body.tactive:not(.bimode) #biBar{top:94px}
+  body.tactive:not(.bimode) #viewer{padding-top:158px}
+  @media (min-width:900px){
+    body.tactive:not(.bimode) #biBar{top:72px}
+    body.tactive:not(.bimode) #viewer{padding-top:138px}
+  }
+
+  /* ---------- Wordmark ---------- */
+  .brand h1 em,#brandMark b em{font-style:normal;color:var(--accent-bright)}
+  #brandMark{display:none}
+  @media (min-width:900px){
+    #brandMark{
+      display:flex;align-items:center;gap:9px;height:26px;flex-shrink:0;
+      padding-right:13px;margin:0 5px 0 6px;border-right:1px solid var(--line);
+      -webkit-user-select:none;user-select:none;
+    }
+    #brandMark .glyph{
+      width:21px;height:21px;border-radius:6px;flex-shrink:0;
+      background:linear-gradient(140deg,#0e5a73,#123845);
+      display:flex;align-items:center;justify-content:center;
+    }
+    #brandMark .glyph svg{width:13px;height:13px;display:block}
+    #brandMark b{font-size:.8rem;font-weight:700;color:#e2e6ea;white-space:nowrap}
+  }
+  /* on a cramped desktop window the mark alone carries the brand */
+  @media (min-width:900px) and (max-width:1150px){
+    #brandMark b{display:none}
+    #brandMark{padding-right:9px}
+  }
+
+  /* ---------- Light mode chrome ---------- */
+  body[data-mode="light"] #topbar,
+  body[data-mode="light"] #sidebar,
+  body[data-mode="light"] #biBar{background:#f4f2ec;border-color:#d6d2c8}
+  body[data-mode="light"] .icon-btn{color:#5c5a54}
+  body[data-mode="light"] .icon-btn:active,
+  body[data-mode="light"] .icon-btn:hover{background:#e4e0d6}
+  body[data-mode="light"] .icon-btn.active{background:#e4e0d6;color:#0e5a73}
+  body[data-mode="light"] #pageInd{color:#33312d}
+  body[data-mode="light"] #brandMark b{color:#2c2a26}
+  body[data-mode="light"] #brandMark{border-right-color:#d6d2c8}
+  body[data-mode="light"] #docTitle{color:#2b6d8a}
+  body[data-mode="light"] #progressTrack{background:#cfcabf}
+  body[data-mode="light"] #pageBadge{background:rgba(244,242,236,.9);border-color:#d6d2c8;color:#5c5a54}
+  body[data-mode="light"] .thumb{background:#e4e0d6}
+  body[data-mode="light"] .tocHead{color:#7a776f}
+  body[data-mode="light"] .tocItem{color:#4a4842}
+  body[data-mode="light"] .tocItem:hover{background:#e4e0d6}
+  body[data-mode="light"] #biBar .langs{color:#6b6a63}
+  body[data-mode="light"] #zoomCtl button{background:rgba(244,242,236,.94);border-color:#d6d2c8;color:#4a4842}
+
+  /* pictures drawn back over the inverted page, unfiltered */
+  .pageBox .imgLayer{
+    position:absolute;left:0;top:0;width:100%;height:auto;z-index:2;
+    filter:none!important;pointer-events:none;
+  }
+  /* the two pages of the compare view */
+  .pageBox.mirror{background:var(--bg-soft)}
+  body.comparing .mode-row.compact{opacity:.38;pointer-events:none}
+  body.comparing #zoomCtl{opacity:1}
+
+  ::-webkit-scrollbar{width:0;height:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
