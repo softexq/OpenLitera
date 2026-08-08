@@ -14,8 +14,11 @@ just the one file the OS handed over), not a bug here. Serve the whole
 single-file version did. Any of these work:
 
 - `python3 -m http.server` from inside the folder, then open `localhost:8000`
+  (the reader itself works fine this way — see the note below about the
+  one thing that doesn't: the books folder auto-detection)
 - Any static host: GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc.
-- Your own server — it's just static files, nothing to build or install
+- Your own server — everything except the books-folder auto-detection
+  below is still just static files, nothing to build or install
 
 ## Looking for something specific?
 
@@ -42,28 +45,39 @@ single-file version did. Any of these work:
 | Chapters/TOC, the toolbar title, fullscreen, keyboard shortcuts            | `js/12-sidebar-and-chrome.js` |
 | How full-page translations get painted onto the page                        | `js/13-page-overlay-translation.js` |
 | Keeping photos in colour in dark mode, the compare view                       | `js/14-images-and-compare-view.js` |
-| Your own PDF library shown on the landing page                                 | `books/books.json` (+ the PDFs themselves) |
+| Your own PDF library shown on the landing page                                 | just add PDFs to `books/` — see below |
+| How the books folder gets scanned automatically                                | `build-books-list.js` |
 
 ## Your own library on the landing page
 
-Drop PDFs into the `books/` folder and list them in `books/books.json` —
-they'll show up as a tappable shelf under the drop zone, so you don't have
-to browse for the same books every time. Two steps per book:
+Drop PDFs into the `books/` folder — they're detected automatically and
+show up as a tappable shelf under the drop zone, so you don't have to
+browse for the same books every time.
 
-1. Put the PDF in `books/` — e.g. `books/dune.pdf`
-2. Add a line to `books/books.json`:
+- **To add a book:** put the PDF in `books/`, then redeploy.
+- **To remove one:** delete the PDF from `books/`, then redeploy.
+- **The displayed title comes from the filename** — `war-and-peace.pdf`
+  shows up as "War And Peace". Rename the file if you want a different
+  title; there's nothing else to edit.
+- **Covers are real page-1 thumbnails**, rendered right in the browser
+  the moment the shelf loads — no separate image files to manage. A book
+  that fails to render (corrupted file, etc.) just falls back to a plain
+  document icon instead of breaking the rest of the shelf.
+- **No books in the folder** (the default) means the shelf just doesn't
+  show up — the landing page looks exactly like it did before this
+  feature existed.
 
-```json
-[
-  { "file": "dune.pdf", "title": "Dune" },
-  { "file": "1984.pdf", "title": "Nineteen Eighty-Four" }
-]
-```
+This works because `vercel.json` tells Vercel to run
+`build-books-list.js` on every deploy — a small script that scans
+`books/` and writes `books/books.json` to match, which is the file the
+landing page actually reads (`js/02-file-open-and-pages.js`). You should
+never need to hand-edit `books/books.json` — it gets overwritten on every
+deploy to match whatever's actually in the folder.
 
-`title` is optional — leave it out and the filename is used instead.
-Redeploy after editing either the PDFs or `books.json`. No books listed
-(the default, empty `[]`) means the shelf just doesn't show up — the
-landing page looks exactly like it did before this feature existed.
+**Testing locally without Vercel** (e.g. `python3 -m http.server`) won't
+run that build step — a plain static file server just serves whatever's
+already in `books/books.json`. Run `node build-books-list.js` yourself
+first if you want to test a books-folder change locally before deploying.
 
 ## Adding a new file
 
