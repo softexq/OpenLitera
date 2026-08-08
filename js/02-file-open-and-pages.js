@@ -34,12 +34,11 @@ async function loadFile(file){
 
 /* ---------- optional personal library ----------
    Fully optional and self-hosted: if the person deploying this drops PDFs
-   into a books/ folder alongside index.html and lists them in
-   books/books.json, those show up as a tappable shelf under the dropzone.
-   Nothing to build or configure otherwise — no books.json (or a fetch
-   failure, e.g. no books/ folder at all) just leaves the landing page
-   exactly as it was, no broken empty section. A tapped entry is fetched
-   from the same origin (no CORS to worry about, since it's served
+   into a books/ folder alongside index.html (see build-books-list.js),
+   those show up as a tappable shelf under the dropzone. No books.json (or
+   a fetch failure, e.g. no books/ folder at all) just leaves the landing
+   page exactly as it was, no broken empty section. A tapped entry is
+   fetched from the same origin (no CORS to worry about, since it's served
    alongside the app itself), wrapped in a real File so it can go through
    the exact same loadFile() every other PDF already goes through. */
 (function initBookshelf(){
@@ -56,16 +55,48 @@ async function loadFile(file){
         const b=document.createElement('button');
         b.className='bookItem';
         b.innerHTML=
-          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+
-          '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'+
-          '<span>'+escapeHtml(title)+'</span>';
+          '<div class="bookCover">'+
+            '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+
+            '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'+
+          '</div>'+
+          '<span class="bookTitle">'+escapeHtml(title)+'</span>';
         b.addEventListener('click',()=>openLibraryBook(String(it.file),title));
         list.appendChild(b);
+        renderBookCover(String(it.file), b.querySelector('.bookCover'));
       });
       if(list.children.length) shelf.style.display='flex';
     })
     .catch(()=>{ /* no books/books.json — landing page just stays as it was */ });
 })();
+
+/* One page-1 render per shelf entry, small and cheap: getDocument(url)
+   (rather than handing it a pre-fetched ArrayBuffer) lets pdf.js use
+   range requests, so this only pulls down as much of each PDF as
+   rendering page 1 actually needs, not the whole file. Mirrors exactly
+   how the sidebar's own page thumbnails already handle dark mode
+   (renderThumb, above) so covers don't look out of place next to them. */
+async function renderBookCover(path, coverEl){
+  if(!coverEl) return;
+  let doc=null;
+  try{
+    doc=await pdfjsLib.getDocument('books/'+path).promise;
+    const page=await doc.getPage(1);
+    const vp=page.getViewport({scale:1});
+    const targetW=140*Math.min(DPR,2);
+    const svp=page.getViewport({scale:targetW/vp.width});
+    const c=document.createElement('canvas');
+    c.width=Math.round(svp.width); c.height=Math.round(svp.height);
+    await page.render({canvasContext:c.getContext('2d'),viewport:svp}).promise;
+    if(document.body.dataset.mode==='dark') remapDarkCanvas(c);
+    coverEl.innerHTML='';
+    coverEl.appendChild(c);
+  }catch(e){
+    /* leave the placeholder document icon showing — a missing or corrupt
+       PDF in the shelf shouldn't break the rest of the covers */
+  }finally{
+    if(doc) doc.destroy();
+  }
+}
 
 async function openLibraryBook(path,title){
   try{
