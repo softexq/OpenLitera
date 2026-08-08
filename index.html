@@ -87,6 +87,9 @@
   <button class="icon-btn" id="quickTransBtn" title="Instant translate on selection">
     <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
   </button>
+  <button class="icon-btn" id="dictBtn" title="Look up a word">
+    <svg viewBox="0 0 24 24"><path d="M4 5c1.4-.7 3-1 5-1 1.6 0 3 .4 3 .4v13.6s-1.4-.4-3-.4c-2 0-3.6.3-5 1z"/><path d="M20 5c-1.4-.7-3-1-5-1-1.6 0-3 .4-3 .4v13.6s1.4-.4 3-.4c2 0 3.6.3 5 1z"/></svg>
+  </button>
   <button class="icon-btn" id="settingsBtn" title="Display settings">
     <svg viewBox="0 0 24 24" style="stroke:none;fill:currentColor"><text x="2" y="18" font-size="17" font-family="Georgia" font-weight="bold" fill="currentColor">Aa</text></svg>
   </button>
@@ -127,6 +130,12 @@
 <div id="selectHint">Drag across the text to select · tap the button again to exit</div>
 <button id="copyPill">Copy</button>
 <div id="quickPop"></div>
+
+<div id="dictScrim"></div>
+<div id="dictPanel">
+  <div id="dictHandle"></div>
+  <div id="dictBody"></div>
+</div>
 
 <div id="scrim"></div>
 <div id="sidebar"></div>
