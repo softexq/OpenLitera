@@ -35,7 +35,7 @@ single-file version did. Any of these work:
 | Opening a file, rendering pages, dark-mode colours            | `js/02-file-open-and-pages.js` |
 | Zoom (buttons/pinch/wheel/double-tap), tap-to-hide-HUD         | `js/03-zoom-and-touch.js` |
 | "Select text" drag-select mode, the Copy button                | `js/04-select-mode.js` |
-| Instant translate-on-selection, the back-button fix             | `js/05-quick-translate.js` |
+| Instant translate-on-selection, dictionary lookup, the back-button fix         | `js/05-quick-translate.js` |
 | Thumbnails, scroll progress, page-rail navigation                | `js/06-navigation-and-progress.js` |
 | Translation engines (Google/Lingva/MyMemory/on-device)             | `js/07-translation-engines.js` |
 | Pulling paragraph text out of a PDF page                            | `js/08-text-extraction.js` |
@@ -78,6 +78,19 @@ deploy to match whatever's actually in the folder.
 run that build step — a plain static file server just serves whatever's
 already in `books/books.json`. Run `node build-books-list.js` yourself
 first if you want to test a books-folder change locally before deploying.
+
+## Dictionary lookup
+
+The Dictionary button works the same way quick-translate does: turn it
+on, select a word, see the result. It calls
+[dictionaryapi.dev](https://dictionaryapi.dev) — free, no signup, no API
+key, no cost — for the definition, phonetic spelling, an audio
+pronunciation when one's available, example sentences, and synonyms.
+English only, and it needs an internet connection (there's no offline
+word list bundled in, which would need shipping a large dictionary file
+just to work without a network). Turning Dictionary on turns
+quick-translate off and vice versa, since both react to a text selection
+and having both on at once would be ambiguous about which one it's for.
 
 ## Adding a new file
 
