@@ -1,7 +1,11 @@
 {
-  "name": "Openlierareader",
-  "short_name": "Openlierareader",
-  "description": "A short description of what your web app does.",
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "openliterareader.vercel",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "openliterareader.vercel",
   "start_url": "/",
-  "display": "standalone"
+  "theme_color": "#ffffff"
 }
