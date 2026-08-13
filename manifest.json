@@ -1,0 +1,7 @@
+{
+  "name": "Openlierareader",
+  "short_name": "Openlierareader",
+  "description": "A short description of what your web app does.",
+  "start_url": "/",
+  "display": "standalone"
+}
