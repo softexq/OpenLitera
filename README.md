@@ -46,7 +46,9 @@ single-file version did. Any of these work:
 | How full-page translations get painted onto the page                        | `js/13-page-overlay-translation.js` |
 | Keeping photos in colour in dark mode, the compare view                       | `js/14-images-and-compare-view.js` |
 | Your own PDF library shown on the landing page                                 | just add PDFs to `books/` — see below |
-| How the books folder gets scanned automatically                                | `build-books-list.js` |
+| Your own audiobook library shown on the landing page                           | just add audio files to `audiobooks/` — see below |
+| How the books/audiobooks folders get scanned automatically                     | `build-books-list.js` |
+| Installable app (Android/desktop "Add to Home screen"), offline app shell      | `manifest.json`, `sw.js`, `icons/` |
 
 ## Your own library on the landing page
 
@@ -91,6 +93,46 @@ word list bundled in, which would need shipping a large dictionary file
 just to work without a network). Turning Dictionary on turns
 quick-translate off and vice versa, since both react to a text selection
 and having both on at once would be ambiguous about which one it's for.
+
+## Audiobooks
+
+Same idea as the PDF library, right below it on the landing page: drop an
+audio file (`.mp3`, `.m4a`, `.m4b`, `.ogg`, `.wav`, `.aac`, or `.flac`)
+into `audiobooks/` and redeploy — it's auto-detected exactly like the
+`books/` folder is, title pulled from the filename the same way. Tapping
+one opens a "Now Playing" panel with the browser's own audio player
+(play/pause/seek/volume all included, nothing custom-built there). No
+cover art — that would mean parsing ID3/MP4 tags client-side across
+several audio formats, which felt like a bigger feature than "give me
+somewhere to keep audiobooks."
+
+## Installing it like an app (and getting a real .apk)
+
+The site is now a proper installable PWA — `manifest.json` + `sw.js` (a
+service worker that caches the app's own files for instant loads and
+offline use) + real icons in `icons/`. On Android, Chrome/Brave will
+offer **"Install app"** (menu → Install app, or an install icon in the
+address bar) once it's live on Vercel — that puts a real icon on the
+home screen and opens the app full-screen, no browser address bar, same
+as any installed app.
+
+**For an actual `.apk` file** (rather than "just" a home-screen install),
+use [PWABuilder](https://www.pwabuilder.com) — free, made by Microsoft,
+no account needed to generate a package:
+
+1. Deploy this to Vercel (or wherever) so it has a live HTTPS URL
+2. Go to pwabuilder.com, paste that URL, let it analyze the site
+3. Click into the Android package option, generate the package
+4. Download the `.apk` (there's also a Play-Store-ready `.aab`)
+
+The generated app is a **Trusted Web Activity** — a real Android app
+that opens this exact site, not a copy of it, so every future update you
+deploy shows up automatically without rebuilding the APK. One optional
+extra step: signing the APK and publishing an `assetlinks.json` file
+removes the last trace of "this is a website" (a thin address bar) —
+PWABuilder's own instructions cover that if you want it fully polished;
+the unsigned version works fine without it, just with that address bar
+still visible.
 
 ## Adding a new file
 

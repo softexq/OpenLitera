@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>OpenLiteraReader</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#131518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -38,6 +44,10 @@
   <div id="bookShelf">
     <div class="shelf-label">Your books</div>
     <div id="bookList"></div>
+  </div>
+  <div id="audioShelf">
+    <div class="shelf-label">Your audiobooks</div>
+    <div id="audioList"></div>
   </div>
   <input type="file" id="fileInput" accept="application/pdf">
 </div>
@@ -135,6 +145,13 @@
 <div id="dictPanel">
   <div id="dictHandle"></div>
   <div id="dictBody"></div>
+</div>
+
+<div id="audioScrim"></div>
+<div id="audioPanel">
+  <div id="audioHandle"></div>
+  <div id="audioTitle"></div>
+  <audio id="audioEl" controls preload="none"></audio>
 </div>
 
 <div id="scrim"></div>

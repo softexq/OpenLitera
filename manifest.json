@@ -1,11 +1,18 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
-  "name": "openliterareader.vercel",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "openliterareader.vercel",
+  "name": "OpenLiteraReader",
+  "short_name": "LiteraReader",
+  "description": "Open any PDF, read it in true dark mode \u2014 pages included, not just the interface \u2014 and translate it in place without losing the layout.",
+  "id": "/",
   "start_url": "/",
-  "theme_color": "#ffffff"
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#131518",
+  "theme_color": "#131518",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
