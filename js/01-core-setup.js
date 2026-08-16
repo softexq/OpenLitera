@@ -34,6 +34,7 @@ const audioPanel=$('#audioPanel'), audioScrim=$('#audioScrim'),
 let pdfDoc=null, pageBoxes=[], numPages=0, currentPage=1;
 let settings={ pageCount:false, knob:true, tapHud:true, skipRunning:true, chapters:true, trueImages:true };
 let selectMode=false;
+let layoutSettling=false;   // true while a rotation/resize relayout is between starting and restoring scroll — see the resize handler and updateProgressFromScroll's scroll listener
 
 /* ===== zoom state ===== */
 let zoom=1;                 // committed layout scale

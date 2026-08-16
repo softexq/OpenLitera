@@ -222,20 +222,39 @@ function applyTranslationLayout(){
    against the same zoom value (rotation doesn't change zoom, only
    baseWidth) and never got asked to redraw at their new size — just
    CSS-stretched from their old canvas until something else happened to
-   trigger a fresh render. Debounced since an animated rotation can fire
-   several resize events in quick succession; only the last one should
-   actually trigger a relayout. */
-let resizeTimer=null;
+   trigger a fresh render.
+
+   Rotating back and forth needs one more thing: rotationAnchor is
+   captured once, on the FIRST resize of a burst, and left alone for
+   every resize after that until the burst settles — not re-read from
+   currentPage each time. currentPage can go transiently wrong mid-burst
+   (a shrinking page during the relayout can clamp scrollTop toward 0,
+   which fires a real scroll event that recomputes currentPage as 1
+   before the restore below ever runs) and capturing fresh each time was
+   letting a second rotation pick up that corrupted value instead of
+   where you actually were. resizeToken exists for the same reason at the
+   other end: if two restorations somehow still end up in flight, only
+   the newest one is allowed to actually move the scroll position. */
+let resizeTimer=null, resizeToken=0, rotationAnchor=null, settlingSafety=null;
 window.addEventListener('resize',()=>{
   if(!pdfDoc) return;
+  if(rotationAnchor===null) rotationAnchor=currentPage;
+  layoutSettling=true;
+  clearTimeout(settlingSafety);
+  settlingSafety=setTimeout(()=>{ layoutSettling=false; },2000);   // worst-case release, in case anything below throws
   clearTimeout(resizeTimer);
   resizeTimer=setTimeout(()=>{
-    const keep=currentPage;
+    const token=++resizeToken;
+    const keep=rotationAnchor;
+    rotationAnchor=null;
     rendered.clear();
     computeBase();
     applyZoomWidths();
     requestAnimationFrame(()=>{
-      goToPage(keep); renderVisibleNow(); scheduleRerender(); updateProgressFromScroll();
+      if(token!==resizeToken) return;   // a newer rotation landed first — let it win
+      goToPage(keep); renderVisibleNow(); scheduleRerender();
+      layoutSettling=false;
+      updateProgressFromScroll();
     });
-  },150);
+  },220);
 });

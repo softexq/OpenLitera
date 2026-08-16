@@ -36,7 +36,7 @@ function updateProgressFromScroll(){
   badge.textContent=currentPage+' / '+numPages;
   updatePageInd();
 }
-viewer.addEventListener('scroll',()=>{ if(!pinching) updateProgressFromScroll(); });
+viewer.addEventListener('scroll',()=>{ if(!pinching&&!layoutSettling) updateProgressFromScroll(); });
 
 function goToPage(n){
   if(document.body.classList.contains('bimode')){
