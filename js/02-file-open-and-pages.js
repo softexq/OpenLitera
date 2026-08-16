@@ -113,6 +113,55 @@ async function openLibraryBook(path,title){
   }
 }
 
+/* ---------- optional personal library: audiobooks ----------
+   Exactly the bookshelf idea above, for audio instead of PDFs — same
+   auto-detection (see build-books-list.js), same "empty list = shelf
+   just doesn't show" graceful default. No embedded-cover-art parsing for
+   now (that would mean reading ID3/MP4 tags client-side across several
+   audio formats) — every entry gets the same generic icon, and tapping
+   one opens the Now Playing panel, where the browser's own <audio
+   controls> UI provides play/pause/seek/volume for free. */
+(function initAudioShelf(){
+  const shelf=$('#audioShelf'), list=$('#audioList');
+  if(!shelf||!list) return;
+  fetch('audiobooks/audiobooks.json',{cache:'no-store'})
+    .then(r=>r.ok?r.json():null)
+    .then(items=>{
+      if(!Array.isArray(items)||!items.length) return;
+      list.innerHTML='';
+      items.forEach(it=>{
+        if(!it||!it.file) return;
+        const title=(it.title&&String(it.title).trim())||String(it.file).replace(/\.[a-z0-9]+$/i,'');
+        const b=document.createElement('button');
+        b.className='audioItem';
+        b.innerHTML=
+          '<div class="audioCover">'+
+            '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+
+            '<path d="M4 15V9a8 8 0 0 1 16 0v6"/><rect x="2" y="13" width="5" height="7" rx="2"/><rect x="17" y="13" width="5" height="7" rx="2"/></svg>'+
+          '</div>'+
+          '<span class="bookTitle">'+escapeHtml(title)+'</span>';
+        b.addEventListener('click',()=>openAudiobook(String(it.file),title));
+        list.appendChild(b);
+      });
+      if(list.children.length) shelf.style.display='flex';
+    })
+    .catch(()=>{ /* no audiobooks/audiobooks.json — landing page just stays as it was */ });
+})();
+
+function openAudiobook(path,title){
+  audioTitleEl.textContent=title;
+  audioEl.src='audiobooks/'+path;
+  audioPanel.classList.add('open');
+  audioScrim.classList.add('show');
+  audioEl.play().catch(()=>{ /* autoplay can be blocked — the visible controls still work */ });
+}
+function closeAudioPanel(){
+  audioPanel.classList.remove('open');
+  audioScrim.classList.remove('show');
+  audioEl.pause();
+}
+audioScrim.addEventListener('click',closeAudioPanel);
+
 /* ---------- pages ---------- */
 async function buildPages(){
   pagesWrap.innerHTML=''; sidebar.innerHTML='';

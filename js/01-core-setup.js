@@ -10,12 +10,26 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+/* Registering this is what makes Chrome/Brave on Android offer
+   "Install app" / "Add to Home screen" with a standalone (no address
+   bar) window, and it's also the prerequisite PWABuilder needs to
+   package a real .apk from this site's URL. Wrapped in try/catch and a
+   feature check since this should never be able to break the reader
+   itself if a browser doesn't support it or a request is blocked. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
 const $ = s => document.querySelector(s);
 const landing=$('#landing'), viewer=$('#viewer'), pagesWrap=$('#pagesWrap'),
       topbar=$('#topbar'), progressWrap=$('#progressWrap'),
       fill=$('#progressFill'), knob=$('#progressKnob'), track=$('#progressTrack'),
       badge=$('#pageBadge'), sidebar=$('#sidebar'), scrim=$('#scrim'),
       sheet=$('#sheet'), sheetScrim=$('#sheetScrim'), zoomCtl=$('#zoomCtl');
+const audioPanel=$('#audioPanel'), audioScrim=$('#audioScrim'),
+      audioTitleEl=$('#audioTitle'), audioEl=$('#audioEl');
 
 let pdfDoc=null, pageBoxes=[], numPages=0, currentPage=1;
 let settings={ pageCount:false, knob:true, tapHud:true, skipRunning:true, chapters:true, trueImages:true };

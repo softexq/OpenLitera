@@ -212,8 +212,30 @@ function applyTranslationLayout(){
   });
 }
 
+/* Rotating the device changes viewer.clientWidth, which computeBase() and
+   applyZoomWidths() turn into a new baseWidth/page width for every page —
+   a real relayout, exactly like applyTranslationLayout() above triggers
+   when switching view modes. This used to skip the two things that
+   function does to survive that: nothing remembered which page you were
+   on to restore afterward (so the reflow could land you anywhere), and
+   rendered wasn't cleared, so already-rendered pages kept comparing
+   against the same zoom value (rotation doesn't change zoom, only
+   baseWidth) and never got asked to redraw at their new size — just
+   CSS-stretched from their old canvas until something else happened to
+   trigger a fresh render. Debounced since an animated rotation can fire
+   several resize events in quick succession; only the last one should
+   actually trigger a relayout. */
+let resizeTimer=null;
 window.addEventListener('resize',()=>{
   if(!pdfDoc) return;
-  computeBase();
-  applyZoomWidths(); scheduleRerender(); updateProgressFromScroll();
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    const keep=currentPage;
+    rendered.clear();
+    computeBase();
+    applyZoomWidths();
+    requestAnimationFrame(()=>{
+      goToPage(keep); renderVisibleNow(); scheduleRerender(); updateProgressFromScroll();
+    });
+  },150);
 });
